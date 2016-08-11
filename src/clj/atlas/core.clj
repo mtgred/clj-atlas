@@ -11,5 +11,12 @@
    ["/" [[:get [[""    (bidi/resources-maybe {:prefix "public/"})]
                 [#".*" index-handler]]]]]))
 
-(defn -main []
-  (run-server handler {:port 1042}))
+(defonce server (atom nil))
+
+(defn stop-server []
+  (when-not (nil? @server)
+    (@server :timeout 100)
+    (reset! server nil)))
+
+(defn -main [& args]
+  (reset! server (run-server #'handler {:port 1042})))
