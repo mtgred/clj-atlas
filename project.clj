@@ -1,6 +1,9 @@
 (defproject atlas "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.8.51"]
+                 [ring "1.5.0"]
+                 [http-kit "2.1.18"]
+                 [bidi "2.0.9"]
                  [reagent "0.5.1"]
                  [re-frame "0.7.0"]
                  [binaryage/devtools "0.6.1"]]
@@ -19,6 +22,10 @@
                                   [figwheel-sidecar "0.5.4-3"]]
                    :plugins      [[lein-figwheel "0.5.4-3"]]
                    :source-paths ["src/clj" "src/cljs"]}}
+
+  :repl-options {:init-ns atlas.core}
+
+  :main atlas.core
 
   :cljsbuild {:builds [{:id           "dev"
                         :source-paths ["src/cljs"]
