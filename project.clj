@@ -6,6 +6,8 @@
                  [ring/ring-json "0.4.0"]
                  [http-kit "2.1.18"]
                  [bidi "2.0.9"]
+                 [buddy/buddy-auth "1.1.0"]
+                 [clojurewerkz/scrypt "1.2.0"]
                  [reagent "0.5.1"]
                  [re-frame "0.7.0"]
                  [binaryage/devtools "0.6.1"]]
