@@ -25,7 +25,7 @@
 
 (defn login-handler [req]
   (let [{{:keys [username password next-url]} :body} req
-        {pwd :password email :email} (mc/find-one-as-map db "users" {:username "mtgred"})]
+        {pwd :password email :email} (mc/find-one-as-map db "users" {:username username})]
     (if (and password pwd (sc/verify password pwd))
       (-> (resp/response {:username username
                           :email-hash (utils/md5 email)})

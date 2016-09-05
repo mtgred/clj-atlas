@@ -10,6 +10,8 @@
                  [clojurewerkz/scrypt "1.2.0"]
                  [reagent "0.5.1"]
                  [re-frame "0.7.0"]
+                 [kibu/pushy "0.3.6"]
+                 [cljs-http "0.1.41"]
                  [binaryage/devtools "0.6.1"]]
 
   :min-lein-version "2.5.3"
@@ -20,7 +22,8 @@
 
   :clean-targets ^{:protect false} ["resources/public/cljs" "target"]
 
-  :figwheel {:css-dirs ["resources/public/css"]}
+  :figwheel {:css-dirs ["resources/public/css"]
+             :ring-handler atlas.core/handler}
 
   :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
                                   [figwheel-sidecar "0.5.4-3"]]
@@ -33,7 +36,7 @@
 
   :cljsbuild {:builds [{:id           "dev"
                         :source-paths ["src/cljs"]
-                        :figwheel     {:on-jsload "atlas.core/mount-root"}
+                        :figwheel     true
                         :compiler     {:main                 atlas.core
                                        :output-to            "resources/public/js/app.js"
                                        :output-dir           "resources/public/cljs"

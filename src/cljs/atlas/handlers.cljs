@@ -1,8 +1,16 @@
 (ns atlas.handlers
-    (:require [re-frame.core :as re-frame]
-              [atlas.db :as db]))
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [re-frame.core :refer [register-handler dispatch]]
+            [cljs.core.async :refer [<!]]
+            [cljs-http.client :as http]))
 
-(re-frame/register-handler
- :initialize-db
- (fn  [_ _]
-   db/default-db))
+(register-handler
+ :set-data
+ (fn [db [_ key value]]
+   (assoc db key value)))
+
+(register-handler
+ :fetch
+ (fn [db [_ key url]]
+   (go (dispatch [:set-data key (:body (<! (http/get url)))]))
+   db))
