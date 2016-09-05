@@ -8,6 +8,7 @@
                  [bidi "2.0.9"]
                  [buddy/buddy-auth "1.1.0"]
                  [clojurewerkz/scrypt "1.2.0"]
+                 [hiccup "1.0.5"]
                  [reagent "0.5.1"]
                  [re-frame "0.7.0"]
                  [kibu/pushy "0.3.6"]

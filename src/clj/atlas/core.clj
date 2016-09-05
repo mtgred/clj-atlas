@@ -1,14 +1,16 @@
 (ns atlas.core
   (:require [org.httpkit.server :refer [run-server]]
+            [clojure.data.json :as json]
             [monger.core :as mg]
             [monger.collection :as mc]
             [ring.util.response :as resp]
-            [ring.middleware.json :as json]
+            [ring.middleware.json :as ring-json]
             [ring.middleware.session :as session]
             [buddy.auth.middleware :as buddy]
             [buddy.auth.backends.session :refer [session-backend]]
             [clojurewerkz.scrypt.core :as sc]
             [bidi.ring :as bidi]
+            [hiccup.page :as hiccup]
             [atlas.utils :as utils]))
 
 (defonce server (atom nil))
@@ -18,7 +20,17 @@
   (def db (:db connection)))
 
 (defn index-handler [req]
-  (resp/file-response "index.html" {:root "resources/public"}))
+  (resp/response
+   (hiccup/html5
+    [:head
+     [:meta {:charset "utf-8"}]
+     [:title "Atlas"]
+     (hiccup/include-css "/css/atlas.css")]
+    [:body
+     [:script {:type "text/javascript"}
+      "var user = '" (get-in req [:session :user]) "';"]
+     [:div#app]
+     (hiccup/include-js "/js/app.js")])))
 
 (defn json-handler [{:keys [route-params]}]
   (resp/response (map #(dissoc % :_id) (mc/find-maps db (:coll route-params)))))
@@ -27,20 +39,21 @@
   (let [{{:keys [username password next-url]} :body} req
         {pwd :password email :email} (mc/find-one-as-map db "users" {:username username})]
     (if (and password pwd (sc/verify password pwd))
-      (-> (resp/response {:username username
-                          :email-hash (utils/md5 email)})
-          (assoc :session (assoc (:session req) :identity username)))
+      (let [user {:username username
+                  :email-hash (utils/md5 email)}]
+       (-> (resp/response user)
+           (update-in [:session] assoc :user user)))
       (-> (resp/response [:error "Unauthorized."])
           (resp/status 401)))))
 
 (defn logout-handler [req]
   (-> (resp/response "")
-      (update-in [:session] #(dissoc % :identity))))
+      (update-in [:session] #(dissoc % :user))))
 
 (defn register-handler [req]
-  (let [{:keys [username password email identity]} (:body req)]
+  (let [{:keys [username password email user]} (:body req)]
     (cond
-      identity
+      user
       (-> (resp/response {:error "Already logged in."})
           (resp/status 403))
 
@@ -63,9 +76,11 @@
                                                    :password (sc/encrypt password 16384 8 1)
                                                    :registration-date now
                                                    :last-connection now})]
-        (-> (resp/response {:username username
-                            :email-hash (utils/md5 email)})
-            (assoc :session (assoc (:session req) :identity username)))))))
+        (let [user {:username username
+                    :email-hash (utils/md5 email)}]
+         (-> (resp/response user)
+             (update-in [:session] assoc :user user)))))))
+
 
 (def routes
   (bidi/make-handler
@@ -79,8 +94,8 @@
 (def handler (-> routes
                  (buddy/wrap-authentication (session-backend))
                  session/wrap-session
-                 (json/wrap-json-body {:keywords? true})
-                 json/wrap-json-response))
+                 (ring-json/wrap-json-body {:keywords? true})
+                 ring-json/wrap-json-response))
 
 (defn stop-server []
   (when-not (nil? @server)
