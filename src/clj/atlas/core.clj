@@ -1,16 +1,20 @@
 (ns atlas.core
-  (:require [org.httpkit.server :refer [run-server]]
+  (:require [clojure.core.async :refer [go <!]]
+            [org.httpkit.server :refer [run-server]]
             [clojure.data.json :as json]
             [monger.core :as mg]
             [monger.collection :as mc]
             [ring.util.response :as resp]
             [ring.middleware.json :as ring-json]
             [ring.middleware.session :as session]
+            [ring.middleware.params :refer [wrap-params]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [buddy.auth.middleware :as buddy]
             [buddy.auth.backends.session :refer [session-backend]]
             [clojurewerkz.scrypt.core :as sc]
             [bidi.ring :as bidi]
             [hiccup.page :as hiccup]
+            [atlas.websocket :as ws]
             [atlas.utils :as utils]))
 
 (defonce server (atom nil))
@@ -81,10 +85,11 @@
          (-> (resp/response user)
              (update-in [:session] assoc :user user)))))))
 
-
 (def routes
   (bidi/make-handler
    ["/" [[["api/" :coll] json-handler]
+         ["ws" [[:get ws/handshake-handler]
+                [:post ws/post-handler]]]
          [:post [["login" login-handler]
                  ["logout" logout-handler]
                  ["register" register-handler]]]
@@ -92,6 +97,8 @@
                 [#".*" index-handler]]]]]))
 
 (def handler (-> routes
+                 wrap-keyword-params
+                 wrap-params
                  (buddy/wrap-authentication (session-backend))
                  session/wrap-session
                  (ring-json/wrap-json-body {:keywords? true})
@@ -104,4 +111,6 @@
     (reset! server nil)))
 
 (defn -main [& args]
-  (reset! server (run-server #'handler {:port 1042})))
+  (reset! server (run-server #'handler {:port 1042}))
+  (go (while true
+        (ws/handle (<! ws/<recv)))))

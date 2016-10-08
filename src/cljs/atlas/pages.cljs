@@ -5,13 +5,16 @@
             [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [atlas.routes :as routes]
-            [atlas.components :refer [atom-input link user-view navbar]]))
+            [atlas.components :refer [atom-input link user-view navbar]]
+            [atlas.websocket :as ws]))
 
 (defn home []
   [:div.container
    [:h1 "Home page"]
    [:div
-    [link {:href "/about"} "About"]]])
+    [link {:href "/about"} "About"]]
+   [:div
+    [:button {:on-click #(ws/send! [:atlas/foo {:data "bar"}])} "Send"]]])
 
 (defn about []
   [:div.container
