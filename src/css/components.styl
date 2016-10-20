@@ -1,0 +1,76 @@
+.navbar
+  height: 48px
+  line-height: 48px
+  border-bottom: 1px solid light-grey
+  padding: 0 20px
+  background-color: rgba(255, 255, 255, 0.9)
+
+  .logo
+    font-weight: 300
+    color: text-color
+    font-size: 24px
+
+    &:hover
+      text-decoration: none
+
+    img
+      width: 28px
+      height: 28px
+      margin-right: 8px
+      vertical-align: middle
+      margin-top: -6px
+
+  a
+    margin-right: 16px
+
+  .right
+    a
+      margin-left: 16px
+      margin-right: 0
+
+.avatar
+  border-radius: 50%
+  margin-right: 8px
+  vertical-align: middle
+  width: 28px
+  height: 28px
+
+.dropdown
+  position: relative
+
+  .link
+    cursor: pointer
+    padding-right: 16px
+
+    &:after
+     content: '\e807'
+     font-family: "fontello"
+     position: absolute
+     top: 1px
+     right: 0
+
+  .menu
+    position: absolute
+    right: 0
+    z-index: 10
+    border: 1px solid light-grey
+    border-radius: 4px
+    margin-top: 4px
+    min-width: 160px
+    padding: 8px
+
+    a
+      display: block
+      margin: 0
+      padding: 4px 12px
+      height: auto
+      line-height: normal
+      border-radius: 4px
+
+  .overlay
+    position: fixed
+    z-index: 5
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0

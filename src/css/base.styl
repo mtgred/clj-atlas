@@ -1,0 +1,99 @@
+*
+  -moz-box-sizing: border-box
+  -webkit-box-sizing: border-box
+  box-sizing: border-box
+
+html, body
+  margin: 0
+  padding: 0
+  height: 100%
+  overflow: hidden
+
+body
+  color: text-color
+  font-weight: 300
+  line-height: 20px
+
+body, input, select, textarea, button, .btn
+  font-family: "Titillium Web", "Helvetica Neue", sans-serif
+  font-size: 15px
+
+h1, h2, h3, h4
+  color: header-color
+  font-weight: 200
+
+h1
+  font-size: 32px
+  line-height: 40px
+
+h2
+  font-size: 26px
+  line-height: 32px
+
+h3
+  font-size: 20px
+  line-height: 26px
+
+a
+  text-decoration: none
+  color: bright-blue
+  outline: none
+
+  &:hover
+    text-decoration: underline
+
+button, .btn
+  font-family: "Titillium Web", "Helvetica Neue", sans-serif
+  font-size: 14px
+  color: bright-blue
+  padding: 4px 20px 5px
+  border-radius: 4px
+  outline: none
+  border: 1px solid bright-blue
+  background-color: white
+  cursor: pointer
+  transition: border 0.25s ease-in-out, box-shadow 0.25s ease-in-out
+  will-change: border, box-shadow
+
+  &:focus, &hover
+    box-shadow: 0 0 4px bright-blue
+    border-color: bright-blue
+
+input, select, textarea
+  padding: 4px 8px
+  border-radius: 4px
+  outline: none
+  border: 1px solid text-color
+  width: 280px
+  transition: border 0.25s ease-in-out, box-shadow 0.25s ease-in-out
+  will-change: border, box-shadow
+
+  &:focus
+    box-shadow: 0 0 4px bright-blue
+    border-color: bright-blue
+
+.container
+  margin: 0 auto
+  padding: 0 20px
+  width: 1080px
+
+.left
+  float: left
+
+.right
+  float: right
+
+* html .clearfix
+  height: 1%
+  overflow: visible
+
+*+html .clearfix
+  min-height: 1%
+
+.clearfix:after
+  clear: both
+  content: "."
+  display: block
+  height: 0
+  visibility: hidden
+  font-size: 0
