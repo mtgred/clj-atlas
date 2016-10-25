@@ -39,10 +39,7 @@
   (let [current-user (subscribe [:current-user])]
     (fn []
      [:div.navbar.clearfix
-      [:a.logo {:href "/"}
-       [:img {:src "/img/logo.svg"}]
-       "Atlas"]
-
+      [:a.logo {:href "/"} "Atlas"]
       [:div.right
        (if @current-user
          [dropdown {}
