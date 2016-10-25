@@ -1,6 +1,5 @@
 (ns atlas.core
-  (:require [clojure.core.async :refer [go <!]]
-            [org.httpkit.server :refer [run-server]]
+  (:require [org.httpkit.server :refer [run-server]]
             [clojure.data.json :as json]
             [monger.core :as mg]
             [monger.collection :as mc]
@@ -111,6 +110,4 @@
     (reset! server nil)))
 
 (defn -main [& args]
-  (reset! server (run-server #'handler {:port 1042}))
-  (go (while true
-        (ws/handle (<! ws/<recv)))))
+  (reset! server (run-server #'handler {:port 1042})))

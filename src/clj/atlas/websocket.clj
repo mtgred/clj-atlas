@@ -1,5 +1,6 @@
 (ns atlas.websocket
-  (:require [taoensso.sente :as sente]
+  (:require [clojure.core.async :refer [go <!]]
+            [taoensso.sente :as sente]
             [taoensso.sente.server-adapters.http-kit :refer (get-sch-adapter)]))
 
 (let [{:keys [ch-recv send-fn connected-uids ajax-post-fn ajax-get-or-ws-handshake-fn]}
@@ -12,5 +13,9 @@
 
 (defn handle [{:keys [id ?data ring-req ?reply-fn send-fn] :as msg}]
   (case id
-    :atlas/foo (prn "foo" ?data)
+    :atlas/foo (do (prn "foo" ?data) (send-fn [:atlas/foo {:data ?data}]))
+    :atlas/fetch (when ?reply-fn
+                   (?reply-fn {:username "mtgred" :email "mtgred@gmail.com"}))
     (prn "ws event:" id)))
+(go (while true
+      (handle (<! <recv))))

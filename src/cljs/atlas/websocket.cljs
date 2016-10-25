@@ -3,8 +3,7 @@
   (:require [cljs.core.async :as async :refer (<! >! put! chan)]
             [taoensso.sente  :as sente :refer (cb-success?)]))
 
-(let [{:keys [chsk ch-recv send-fn state]}
-      (sente/make-channel-socket! "/ws" {:type :auto})]
+(let [{:keys [chsk ch-recv send-fn state]} (sente/make-channel-socket! "/ws" {:type :auto})]
   (def chsk chsk)
   (def <recv ch-recv)
   (def send! send-fn)

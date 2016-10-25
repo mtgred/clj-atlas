@@ -86,12 +86,27 @@
        (when-not (empty? @error-msg)
          [:p @error-msg])]])))
 
+(defn profile [user]
+  (let [user-profile (subscribe [:user-profile])]
+    (r/create-class
+     {:component-will-mount
+      #(dispatch [:fetch :user-profile {:username user}])
+      :reagent-render
+      (fn []
+        [:div.container
+         (if-not @user-profile
+           "Loading..."
+           [:div
+            [:h1 (:username @user-profile)]
+            [:p (str "Email: " (:email @user-profile)) ]])])})))
+
 (defn get-page [{:keys [handler route-params]}]
   (case handler
     :home [home]
     :about [about]
     :register [register]
     :login [login]
+    :profile [profile (:user route-params)]
     :subatlas [subatlas (:name route-params)]
     [:div]))
 

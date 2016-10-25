@@ -45,7 +45,7 @@
          [dropdown {}
           [user-view @current-user]
           [:div
-           [link {:href "/profile"} "Profile"]
+           [link {:href (str "/profile/" (:username @current-user))} "Profile"]
            [link {:href "/settings"} "Settings"]
            [link {:href "/logout"
                   :on-click (fn [e]
