@@ -24,6 +24,12 @@
   [:div.container
    [:h1 (str "Subatlas " name)]])
 
+(defn handle-login! [resp error-msg]
+  (if (:success resp)
+    (do (dispatch [:set-data :current-user (:body resp)])
+        (routes/goto "/"))
+    (reset! error-msg (-> resp :body :error))))
+
 (defn register []
   (let [username (r/atom "")
         email (r/atom "")
@@ -38,10 +44,7 @@
                                                          {:json-params {:username @username
                                                                         :email @email
                                                                         :password @password}}))]
-                                 (if (:success resp)
-                                   (do (dispatch [:set-data :current-user (:body resp)])
-                                       (routes/goto "/"))
-                                   (reset! error-msg (second (:body resp)))))))}
+                                 (handle-login! resp error-msg))))}
        [:p
         [:label "Username"]]
        [:p
@@ -54,7 +57,7 @@
         [:label "Password"]]
        [:p
         [atom-input {:type "password"} password]]
-       [:button "Login"]
+       [:button "Register"]
        (when-not (empty? @error-msg)
          [:p @error-msg])]])))
 
@@ -70,10 +73,7 @@
                            (go (let [resp (<! (http/post "/login"
                                                          {:json-params {:username @username
                                                                         :password @password}}))]
-                                 (if (:success resp)
-                                   (do (dispatch [:set-data :current-user (:body resp)])
-                                       (routes/goto "/"))
-                                   (reset! error-msg "Invalid login or password")))))}
+                                 (handle-login! resp error-msg))))}
        [:p
         [:label "Username"]]
        [:p

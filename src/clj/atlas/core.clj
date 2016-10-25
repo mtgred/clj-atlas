@@ -47,7 +47,7 @@
                   :email-hash (utils/md5 email)}]
        (-> (resp/response user)
            (update-in [:session] assoc :user user)))
-      (-> (resp/response [:error "Unauthorized."])
+      (-> (resp/response {:error "Invalid login or password"})
           (resp/status 401)))))
 
 (defn logout-handler [req]
