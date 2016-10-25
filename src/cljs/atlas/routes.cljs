@@ -8,6 +8,7 @@
         "about" :about
         "register" :register
         "login" :login
+        "profile/" {[:user] :profile}
         "a/" {[:name] :subatlas}}])
 
 (def history
@@ -17,5 +18,3 @@
 
 (defn goto [url]
   (pushy/set-token! history url))
-
-(:active-page @re-frame.db/app-db)

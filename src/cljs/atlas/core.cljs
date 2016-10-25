@@ -2,7 +2,7 @@
     (:require [reagent.core :as reagent]
               [re-frame.core :as rf]
               [devtools.core :as devtools]
-              [atlas.handlers]
+              [atlas.events]
               [atlas.subs]
               [atlas.pages :as pages]
               [atlas.config :as config]))
