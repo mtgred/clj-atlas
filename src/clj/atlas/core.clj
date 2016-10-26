@@ -1,5 +1,8 @@
 (ns atlas.core
-  (:require [org.httpkit.server :refer [run-server]]
+  (:require [clojure.core.async :refer [go <!]]
+            [taoensso.sente :as sente]
+            [taoensso.sente.server-adapters.http-kit :refer (get-sch-adapter)]
+            [org.httpkit.server :refer [run-server]]
             [clojure.data.json :as json]
             [monger.core :as mg]
             [monger.collection :as mc]
@@ -13,14 +16,58 @@
             [clojurewerkz.scrypt.core :as sc]
             [bidi.ring :as bidi]
             [hiccup.page :as hiccup]
-            [atlas.websocket :as ws]
             [atlas.utils :as utils]))
 
 (defonce server (atom nil))
+(defonce ws-router (atom nil))
 
 (let [connection (mg/connect-via-uri "mongodb://localhost/atlas")]
   (def conn (:conn connection))
   (def db (:db connection)))
+
+(let [{:keys [ch-recv send-fn connected-uids ajax-post-fn ajax-get-or-ws-handshake-fn]}
+      (sente/make-channel-socket! (get-sch-adapter) {})]
+  (def handshake-handler ajax-get-or-ws-handshake-fn)
+  (def post-handler ajax-post-fn)
+  (def <recv ch-recv)
+  (def send! send-fn)
+  (def connected-uids connected-uids))
+
+(defmulti handle-fetch :coll)
+
+(defmethod handle-fetch :user-profile [data]
+  (let [user (mc/find-one-as-map db "users" {:username (-> data :args :username)})]
+    (prn "user" user)
+    (if user
+      {:status :ok :data (select-keys user [:username :email])}
+      {:status :error :data "Unknown user"})))
+
+(defmethod handle-fetch :default [data]
+  {:status :error :data "Unknown"})
+
+(defmulti handle-ws :id)
+
+(defmethod handle-ws :atlas/foo [{:keys [?data send-fn]}]
+  (prn "foo" ?data))
+
+(defmethod handle-ws :atlas/fetch [{:keys [?data ?reply-fn]}]
+  (let [result (handle-fetch (:data ?data))]
+    (?reply-fn result)))
+
+(defmethod handle-ws :default [msg]
+  (prn "ws"))
+
+(defn ws-handler [{:keys [id ?data ring-req ?reply-fn send-fn] :as msg}]
+  (prn 'ws id ?data)
+  (handle-ws msg))
+
+(defn stop-ws-router! []
+  (when-let [stop-fn @ws-router]
+    (stop-fn)))
+
+(defn start-ws-router! []
+  (stop-ws-router!)
+  (reset! ws-router (sente/start-server-chsk-router! <recv ws-handler)))
 
 (defn index-handler [req]
   (resp/response
@@ -87,8 +134,8 @@
 (def routes
   (bidi/make-handler
    ["/" [[["api/" :coll] json-handler]
-         ["ws" [[:get ws/handshake-handler]
-                [:post ws/post-handler]]]
+         ["ws" [[:get handshake-handler]
+                [:post post-handler]]]
          [:post [["login" login-handler]
                  ["logout" logout-handler]
                  ["register" register-handler]]]
@@ -104,10 +151,12 @@
                  ring-json/wrap-json-response))
 
 (defn stop-server []
+  (stop-ws-router!)
   (when-not (nil? @server)
     (@server :timeout 100)
     (mg/disconnect conn)
     (reset! server nil)))
 
 (defn -main [& args]
-  (reset! server (run-server #'handler {:port 1042})))
+  (reset! server (run-server #'handler {:port 1042}))
+  (start-ws-router!))
