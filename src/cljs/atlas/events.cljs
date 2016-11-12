@@ -18,3 +18,10 @@
    {:ws-send {:key :atlas/fetch
               :data {:coll coll :args args}
               :callback #(dispatch [:set-data coll (:data %)])}}))
+
+(reg-event-fx
+ :post
+ (fn [_ [_ coll args]]
+   {:ws-send {:key :atlas/post
+              :data {:coll coll :args args}
+              :callback #(dispatch [:set-data :notification %])}}))

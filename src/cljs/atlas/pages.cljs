@@ -86,6 +86,31 @@
        (when-not (empty? @error-msg)
          [:p @error-msg])]])))
 
+(defn settings []
+  (let [user-profile (subscribe [:user-profile])
+        current-user (subscribe [:current-user])
+        email (r/atom nil)]
+    (r/create-class
+     {:component-will-mount
+      #(dispatch [:fetch :user-profile {:username (:username @current-user)}])
+      :reagent-render
+      (fn []
+        [:div.container
+         (if-not @user-profile
+           "Loading..."
+           [:div
+            [:h1 (:username @user-profile)]
+            [:p "Email"]
+            [:input {:type "text"
+                     :value (or @email (:email @user-profile))
+                     :on-change #(reset! email (-> % .-target .-value))}]
+            [:p
+             [:button
+              {:on-click #(when @email
+                            (dispatch [:post :user-profile {:email @email}]))}
+              "Save"]]])])})))
+
+
 (defn profile [user]
   (let [user-profile (subscribe [:user-profile])]
     (r/create-class
@@ -106,6 +131,7 @@
     :about [about]
     :register [register]
     :login [login]
+    :settings [settings]
     :profile [profile (:user route-params)]
     :subatlas [subatlas (:name route-params)]
     [:div]))

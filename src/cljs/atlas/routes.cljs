@@ -8,6 +8,7 @@
         "about" :about
         "register" :register
         "login" :login
+        "settings" :settings
         "profile/" {[:user] :profile}
         "a/" {[:name] :subatlas}}])
 

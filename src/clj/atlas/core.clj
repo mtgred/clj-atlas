@@ -44,6 +44,12 @@
 (defmethod handle-fetch :default [data]
   {:status :error :data "Unknown"})
 
+(defmulti handle-post :coll)
+
+(defmethod handle-post :user-profile [{:keys [username args]}]
+  (mc/update db "users" {:username username} {"$set" args})
+  "Setting updated")
+
 (defmulti handle-ws :id)
 
 (defmethod handle-ws :atlas/foo [{:keys [?data send-fn]}]
@@ -51,6 +57,11 @@
 
 (defmethod handle-ws :atlas/fetch [{:keys [?data ?reply-fn]}]
   (let [result (handle-fetch (:data ?data))]
+    (?reply-fn result)))
+
+(defmethod handle-ws :atlas/post [{:keys [?data ring-req]}]
+  (clojure.pprint/pprint ring-req)
+  (let [result (handle-post (assoc (:data ?data) :username (get-in ring-req [:session :user :username])))]
     (?reply-fn result)))
 
 (defmethod handle-ws :default [msg]
