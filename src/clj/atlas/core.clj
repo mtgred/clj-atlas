@@ -59,7 +59,7 @@
   (let [result (handle-fetch (:data ?data))]
     (?reply-fn result)))
 
-(defmethod handle-ws :atlas/post [{:keys [?data ring-req]}]
+(defmethod handle-ws :atlas/post [{:keys [?data ?reply-fn ring-req]}]
   (clojure.pprint/pprint ring-req)
   (let [result (handle-post (assoc (:data ?data) :username (get-in ring-req [:session :user :username])))]
     (?reply-fn result)))
