@@ -50,6 +50,16 @@
   (mc/update db "users" {:username username} {"$set" args})
   "Setting updated")
 
+(defmethod handle-post :change-password [{:keys [username args]}]
+  (let [{:keys [old-password new-password]} args
+        {pwd :password email :email} (mc/find-one-as-map db "users" {:username username})]
+    (if (and old-password pwd (sc/verify old-password pwd))
+      (do (mc/update db "users"
+                     {:username username}
+                     {"$set" {:password (sc/encrypt new-password 16384 8 1)}})
+          "Password changed")
+      "Invalid password")))
+
 (defmulti handle-ws :id)
 
 (defmethod handle-ws :atlas/foo [{:keys [?data send-fn]}]

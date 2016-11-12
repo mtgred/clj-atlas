@@ -89,7 +89,11 @@
 (defn settings []
   (let [user-profile (subscribe [:user-profile])
         current-user (subscribe [:current-user])
-        email (r/atom nil)]
+        email (r/atom nil)
+        old-password (r/atom "")
+        new-password (r/atom "")
+        new-password-retype (r/atom "")
+        errors (r/atom {})]
     (r/create-class
      {:component-will-mount
       #(dispatch [:fetch :user-profile {:username (:username @current-user)}])
@@ -100,15 +104,36 @@
            "Loading..."
            [:div
             [:h1 (:username @user-profile)]
-            [:p "Email"]
-            [:input {:type "text"
-                     :value (or @email (:email @user-profile))
-                     :on-change #(reset! email (-> % .-target .-value))}]
-            [:p
-             [:button
-              {:on-click #(when @email
-                            (dispatch [:post :user-profile {:email @email}]))}
-              "Save"]]])])})))
+            [:section
+             [:h3 "Email"]
+             [:input {:type "text"
+                      :value (or @email (:email @user-profile))
+                      :on-change #(reset! email (-> % .-target .-value))}]
+             [:p
+              [:button
+               {:on-click #(when @email
+                             (dispatch [:post :user-profile {:email @email}]))}
+               "Change email"]]]
+            [:section
+             [:h3 "Password"]
+             [:p "Old password"]
+             [atom-input {:type "password"} old-password]
+             [:p "New password"]
+             [atom-input {:type "password"} new-password]
+             [:p "Retype new password"]
+             [atom-input {:type "password"} new-password-retype]
+             (when (:password-mismatch @errors)
+               [:p.error "Please retype your new password"])
+             [:p
+              [:button
+               {:on-click
+                (fn []
+                  (swap! errors assoc :password-mismatch false)
+                  (if (and (not-empty @new-password) (= @new-password @new-password-retype))
+                    (dispatch [:post :change-password {:old-password @old-password
+                                                       :new-password @new-password}])
+                    (swap! errors assoc :password-mismatch true)))}
+               "Change password"]]]])])})))
 
 
 (defn profile [user]
