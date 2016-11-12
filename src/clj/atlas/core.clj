@@ -22,22 +22,21 @@
 (defonce ws-router (atom nil))
 
 (let [connection (mg/connect-via-uri "mongodb://localhost/atlas")]
-  (def conn (:conn connection))
-  (def db (:db connection)))
+  (defonce conn (:conn connection))
+  (defonce db (:db connection)))
 
 (let [{:keys [ch-recv send-fn connected-uids ajax-post-fn ajax-get-or-ws-handshake-fn]}
       (sente/make-channel-socket! (get-sch-adapter) {})]
-  (def handshake-handler ajax-get-or-ws-handshake-fn)
-  (def post-handler ajax-post-fn)
-  (def <recv ch-recv)
-  (def send! send-fn)
-  (def connected-uids connected-uids))
+  (defonce handshake-handler ajax-get-or-ws-handshake-fn)
+  (defonce post-handler ajax-post-fn)
+  (defonce <recv ch-recv)
+  (defonce send! send-fn)
+  (defonce connected-uids connected-uids))
 
 (defmulti handle-fetch :coll)
 
 (defmethod handle-fetch :user-profile [data]
   (let [user (mc/find-one-as-map db "users" {:username (-> data :args :username)})]
-    (prn "user" user)
     (if user
       {:status :ok :data (select-keys user [:username :email])}
       {:status :error :data "Unknown user"})))
