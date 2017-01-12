@@ -22,7 +22,8 @@
 (defonce server (atom nil))
 (defonce ws-router (atom nil))
 
-(let [connection (mg/connect-via-uri "mongodb://localhost/atlas")]
+(let [mongo-addr (or (System/getenv "MONGO_PORT_27017_TCP_ADDR") "localhost")
+      connection (mg/connect-via-uri (str "mongodb://" mongo-addr "/atlas"))]
   (defonce conn (:conn connection))
   (defonce db (:db connection)))
 

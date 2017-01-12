@@ -36,8 +36,6 @@
 
   :repl-options {:init-ns atlas.core}
 
-  :local-repo "deps"
-
   :main atlas.core
 
   :cljsbuild {:builds [{:id           "dev"
