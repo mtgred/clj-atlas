@@ -27,7 +27,9 @@
   :figwheel {:css-dirs ["resources/public/css"]
              :ring-handler atlas.core/handler}
 
-  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
+  :profiles {:uberjar {:aot :all
+                       :uberjar-name "atlas.jar"}
+             :dev {:dependencies [[com.cemerick/piggieback "0.2.1"]
                                   [figwheel-sidecar "0.5.4-3"]]
                    :plugins      [[lein-figwheel "0.5.4-3"]]
                    :source-paths ["src/clj" "src/cljs"]}}

@@ -16,7 +16,8 @@
             [clojurewerkz.scrypt.core :as sc]
             [bidi.ring :as bidi]
             [hiccup.page :as hiccup]
-            [atlas.utils :as utils]))
+            [atlas.utils :as utils])
+  (:gen-class))
 
 (defonce server (atom nil))
 (defonce ws-router (atom nil))
