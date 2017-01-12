@@ -1,4 +1,5 @@
 /*.log
+/deps
 /target
 /*-init.clj
 /resources/public/css

@@ -36,6 +36,8 @@
 
   :repl-options {:init-ns atlas.core}
 
+  :local-repo "deps"
+
   :main atlas.core
 
   :cljsbuild {:builds [{:id           "dev"
@@ -50,7 +52,7 @@
                        {:id           "prod"
                         :source-paths ["src/cljs"]
                         :compiler     {:main                 atlas.core
-                                       :output-to            "resources/public/js/compiled/app.js"
+                                       :output-to            "resources/public/js/app.js"
                                        :optimizations        :advanced
                                        :closure-defines      {goog.DEBUG false}
                                        :pretty-print         false}}]})
