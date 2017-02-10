@@ -34,7 +34,8 @@
                    :plugins      [[lein-figwheel "0.5.4-3"]]
                    :source-paths ["src/clj" "src/cljs"]}}
 
-  :repl-options {:init-ns atlas.core}
+  :repl-options {:init-ns atlas.core
+                 :port 2041}
 
   :main atlas.core
 
