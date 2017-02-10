@@ -23,7 +23,8 @@
 (defonce ws-router (atom nil))
 
 (let [mongo-addr (or (System/getenv "MONGO_PORT_27017_TCP_ADDR") "localhost")
-      connection (mg/connect-via-uri (str "mongodb://" mongo-addr "/atlas"))]
+      mongo-port (or (System/getenv "MONGO_PORT") "27017")
+      connection (mg/connect-via-uri (str "mongodb://" mongo-addr ":" mongo-port "/atlas"))]
   (defonce conn (:conn connection))
   (defonce db (:db connection)))
 
@@ -180,5 +181,5 @@
     (reset! server nil)))
 
 (defn -main [& args]
-  (reset! server (run-server #'handler {:port 1042}))
+  (reset! server (run-server #'handler {:port (or (first args) 2042)}))
   (start-ws-router!))
