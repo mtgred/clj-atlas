@@ -103,7 +103,10 @@
      [:script {:type "text/javascript"}
       "var user = '" (get-in req [:session :user]) "';"]
      [:div#app]
-     (hiccup/include-js "/js/app.js")])))
+     (hiccup/include-js "/js/app.js")
+     (when (= (System/getenv "ATLASENV") "production")
+       [:script
+        "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create','UA-91781705-1','auto');ga('send','pageview',window.location.pathname);"])])))
 
 (defn json-handler [{:keys [route-params]}]
   (resp/response (map #(dissoc % :_id) (mc/find-maps db (:coll route-params)))))

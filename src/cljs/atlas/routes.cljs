@@ -18,4 +18,5 @@
 (pushy/start! history)
 
 (defn goto [url]
+  (try (js/ga "send" "pageview" url) (catch js/Error e))
   (pushy/set-token! history url))
