@@ -22,7 +22,7 @@
   ([user] (user-view user 28))
   ([{:keys [username email-hash] :as user} size]
    [:div
-    [:img.avatar {:src (str "http://www.gravatar.com/avatar/" email-hash "?d=retro&s=" size)}]
+    [:img.avatar {:src (str "https://www.gravatar.com/avatar/" email-hash "?d=retro&s=" size)}]
     username]))
 
 (defn dropdown [props link menu]
