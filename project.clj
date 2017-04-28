@@ -7,6 +7,7 @@
                  [http-kit "2.1.18"]
                  [com.taoensso/sente "1.10.0"]
                  [bidi "2.0.9"]
+                 [aero "1.1.2"]
                  [buddy/buddy-auth "1.1.0"]
                  [clojurewerkz/scrypt "1.2.0"]
                  [hiccup "1.0.5"]
