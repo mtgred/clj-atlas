@@ -6,6 +6,7 @@
                  [ring/ring-json "0.4.0"]
                  [http-kit "2.1.18"]
                  [com.taoensso/sente "1.10.0"]
+                 [compojure "1.5.2"]
                  [bidi "2.0.9"]
                  [aero "1.1.2"]
                  [buddy/buddy-auth "1.1.0"]
