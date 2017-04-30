@@ -35,8 +35,13 @@
   :available-media-types ["text/html"]
   :handle-ok (index-page req))
 
-(defn json-handler [{:keys [route-params]}]
-  (resp/response (map #(dissoc % :_id) (mc/find-maps db (:coll route-params)))))
+(defresource profile-res [username]
+  :available-media-types ["application/json"]
+  :exists? (fn [req]
+             (when-let [user (mc/find-one-as-map db "users" {:username username})]
+               {:user (select-keys user [:username :email])}))
+  :handle-ok (fn [{:keys [user]}] user)
+  :handle-not-found (fn [_] "Unknown user"))
 
 (defn login-handler [req]
   (let [{{:keys [username password next-url]} :body} req
@@ -91,7 +96,7 @@
   (POST "/login" [] login-handler)
   (POST "/logout" [] logout-handler)
   (POST "/register" [] register-handler)
-  (GET "/api/:coll" [coll] json-handler)
+  (GET "/api/profile/:username" [username] (profile-res username))
   (GET "/*" [] index-res))
 
 (def app (-> routes

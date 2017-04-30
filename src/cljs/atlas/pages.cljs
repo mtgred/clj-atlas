@@ -96,7 +96,9 @@
         errors (r/atom {})]
     (r/create-class
      {:component-will-mount
-      #(dispatch [:fetch :user-profile {:username (:username @current-user)}])
+      #(dispatch [:http {:key :user-profile
+                         :method :get
+                         :url (str "/api/profile" (:username @current-user))}])
       :reagent-render
       (fn []
         [:div.container
