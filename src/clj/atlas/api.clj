@@ -8,6 +8,7 @@
             [buddy.auth.middleware :refer [wrap-authentication]]
             [buddy.auth.backends.session :refer [session-backend]]
             [monger.collection :as mc]
+            [liberator.core :refer [defresource]]
             [ring.util.response :as resp]
             [hiccup.page :as hiccup]
             [clojurewerkz.scrypt.core :as sc]
@@ -29,6 +30,10 @@
       [:script
        "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');ga('create','UA-91781705-1','auto');ga('send','pageview',window.location.pathname);"])
     (hiccup/include-js "/js/app.js")]))
+
+(defresource index-res [req]
+  :available-media-types ["text/html"]
+  :handle-ok (index-page req))
 
 (defn json-handler [{:keys [route-params]}]
   (resp/response (map #(dissoc % :_id) (mc/find-maps db (:coll route-params)))))
@@ -87,7 +92,7 @@
   (POST "/logout" [] logout-handler)
   (POST "/register" [] register-handler)
   (GET "/api/:coll" [coll] json-handler)
-  (GET "/*" [] index-page))
+  (GET "/*" [] index-res))
 
 (def app (-> routes
              wrap-keyword-params
