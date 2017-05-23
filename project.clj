@@ -17,6 +17,7 @@
                  [re-frame "0.8.0"]
                  [kibu/pushy "0.3.6"]
                  [cljs-http "0.1.41"]
+                 [clj-http "3.4.1"]
                  [binaryage/devtools "0.6.1"]]
 
   :min-lein-version "2.5.3"

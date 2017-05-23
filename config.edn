@@ -1,2 +1,4 @@
-{:intrinio {:username ""
+{:db {:address "localhost"
+      :port "27017"}
+ :intrinio {:username ""
             :password ""}}
