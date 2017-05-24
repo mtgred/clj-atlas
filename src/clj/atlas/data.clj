@@ -1,5 +1,6 @@
 (ns atlas.data
   (:require [clj-http.client :as http]
+            [clojure.data.json :as json]
             [monger.collection :as mc]
             [aero.core :refer [read-config]]
             [clojure.java.io :as io]
@@ -30,10 +31,52 @@
   (-> (fetch "companies" {"identifier" ticker})
       (dissoc :securities)))
 
-(defn json-fetch! []
+(defn json-fetch-companies! []
   (doseq [{:keys [ticker]} (mc/find-maps db "tickers")]
-    (let [filename (str "data/" ticker ".json")]
+    (let [filename (str "data/companies" ticker ".json")]
      (when-not (.exists (io/file filename))
-       (spit filename
-             (fetch-company ticker))))))
+       (spit filename (fetch-company ticker))))))
+
+(defn fetch-historical [ticker item]
+  (println "Fetching" ticker item)
+  (-> (fetch "historical_data" {"identifier" ticker
+                                "item" item
+                                "page_size" 1000})
+      :data))
+
+(defn json-fetch-historical! [ticker items]
+  (doseq [item items]
+    (let [filename (str "data/historical/" ticker "/" ticker " - " item ".json")]
+      (io/make-parents filename)
+      (when-not (.exists (io/file filename))
+        (spit filename (fetch-historical ticker item))))))
+
+(defn json-fetch-all-historical! []
+  (let [items ["adj_close_price"
+               "52_week_high"
+               "52_week_low"
+               "pricetonextyearearnings"
+               "freecashflow"
+               "netdebt"
+               "netdebt"
+               "debttoequity"
+               "capex"
+               "totalrevenue"
+               "netincome"
+               "dilutedeps"
+               "marketcap"
+               "enterprisevalue"
+               "weightedavebasicsharesos"
+               "bookvaluepershare"
+               "roe"
+               "roic"
+               "grossmargin"
+               "profitmargin"
+               "revenuegrowth" ;; ?
+               "dividendyield"
+               "short_interest"
+               "days_to_cover"]]
+    (doseq [{:keys [ticker]} (mc/find-maps db "tickers")]
+      (json-fetch-historical! ticker items))))
+
 
