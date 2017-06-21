@@ -2,6 +2,7 @@
   (:require [clj-http.client :as http]
             [clojure.data.json :as json]
             [monger.collection :as mc]
+            [monger.operators :refer [$gt]]
             [aero.core :refer [read-config]]
             [clojure.java.io :as io]
             [atlas.db :refer [db]]))
@@ -33,7 +34,7 @@
 
 (defn json-fetch-companies! []
   (doseq [{:keys [ticker]} (mc/find-maps db "tickers")]
-    (let [filename (str "data/companies" ticker ".json")]
+    (let [filename (str "data/companies/" ticker ".json")]
      (when-not (.exists (io/file filename))
        (spit filename (fetch-company ticker))))))
 
@@ -76,7 +77,17 @@
                "dividendyield"
                "short_interest"
                "days_to_cover"]]
-    (doseq [{:keys [ticker]} (mc/find-maps db "tickers")]
-      (json-fetch-historical! ticker items))))
+    (loop [[{:keys [ticker]} & tickers] (mc/find-maps db "tickers" {:latest_filing_date {$gt "2017-02-01"}})]
+      (let [error (atom false)]
+       (try
+         (json-fetch-historical! ticker items)
+         (catch Exception e (let [status (-> e ex-data :status)]
+                              (println ticker " error " status)
+                              (spit "data/error.log" (str ticker (ex-data e) "\n") :append true)
+                              (when (= status 429)
+                                (reset! error status)))))
+       (when-not @error
+         (recur tickers))))))
+
 
 
