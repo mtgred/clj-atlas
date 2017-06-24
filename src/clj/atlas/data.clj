@@ -89,5 +89,11 @@
        (when-not @error
          (recur tickers))))))
 
+(defn json-fetch-macro! []
+  (doseq [identifier ["$GDP" "$FEDFUNDS" "$PAYEMS" "$UNRATE"]]
+    (let [filename (str "data/macro/" identifier ".json")]
+      (spit filename (fetch-historical identifier "level")))))
+
+
 
 
