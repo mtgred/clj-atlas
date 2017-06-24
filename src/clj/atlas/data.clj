@@ -59,7 +59,7 @@
                "pricetonextyearearnings"
                "freecashflow"
                "netdebt"
-               "netdebt"
+               "debttototalcapital"
                "debttoequity"
                "capex"
                "totalrevenue"
@@ -82,7 +82,7 @@
        (try
          (json-fetch-historical! ticker items)
          (catch Exception e (let [status (-> e ex-data :status)]
-                              (println ticker " error " status)
+                              (println ticker "error" status)
                               (spit "data/error.log" (str ticker (ex-data e) "\n") :append true)
                               (when (= status 429)
                                 (reset! error status)))))
