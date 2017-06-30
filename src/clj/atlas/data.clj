@@ -10,6 +10,30 @@
 (let [intrinio (:intrinio (read-config "config.edn"))]
   (def auth [(:username intrinio) (:password intrinio)]))
 
+(def companies (read-string (slurp "data/tickers.edn")))
+
+(def daily ["adj_close_price"
+            "52_week_high"
+            "52_week_low"
+            "pricetonextyearearnings"
+            "dividendyield"
+            "marketcap"])
+
+(def quarterly ["freecashflow"
+                "netdebt"
+                "debttototalcapital"
+                "capex"
+                "totalrevenue"
+                "netincome"
+                "weightedavebasicsharesos"
+                "bookvaluepershare"
+                "roe"
+                "roic"
+                "grossmargin"
+                "profitmargin"
+                "short_interest"
+                "days_to_cover"])
+
 (defn fetch
   ([endpoint] (fetch endpoint nil))
   ([endpoint query-params]
@@ -34,7 +58,7 @@
 
 (defn json-fetch-companies! []
   (doseq [{:keys [ticker]} (mc/find-maps db "tickers")]
-    (let [filename (str "data/companies/" ticker ".json")]
+    (let [filename (str "data/companies/" ticker ".edn")]
      (when-not (.exists (io/file filename))
        (spit filename (fetch-company ticker))))))
 
@@ -47,51 +71,28 @@
 
 (defn json-fetch-historical! [ticker items]
   (doseq [item items]
-    (let [filename (str "data/historical/" ticker "/" ticker " - " item ".json")]
+    (let [filename (str "data/historical/" ticker "/" ticker " - " item ".edn")]
       (io/make-parents filename)
       (when-not (.exists (io/file filename))
         (spit filename (fetch-historical ticker item))))))
 
-(defn json-fetch-all-historical! []
-  (let [items ["adj_close_price"
-               "52_week_high"
-               "52_week_low"
-               "pricetonextyearearnings"
-               "freecashflow"
-               "netdebt"
-               "debttototalcapital"
-               "debttoequity"
-               "capex"
-               "totalrevenue"
-               "netincome"
-               "dilutedeps"
-               "marketcap"
-               "enterprisevalue"
-               "weightedavebasicsharesos"
-               "bookvaluepershare"
-               "roe"
-               "roic"
-               "grossmargin"
-               "profitmargin"
-               "revenuegrowth" ;; ?
-               "dividendyield"
-               "short_interest"
-               "days_to_cover"]]
-    (loop [[{:keys [ticker]} & tickers] (mc/find-maps db "tickers" {:latest_filing_date {$gt "2017-02-01"}})]
-      (let [error (atom false)]
-       (try
-         (json-fetch-historical! ticker items)
-         (catch Exception e (let [status (-> e ex-data :status)]
-                              (println ticker "error" status)
-                              (spit "data/error.log" (str ticker (ex-data e) "\n") :append true)
-                              (when (= status 429)
-                                (reset! error status)))))
-       (when-not @error
-         (recur tickers))))))
+(defn json-fetch-all-historical! [companies]
+  (loop [[ticker & tickers] companies]
+    (let [error (atom false)]
+      (try
+        (json-fetch-historical! ticker quarterly)
+        (catch Exception e (let [status (-> e ex-data :status)]
+                             (println ticker "error" status)
+                             (spit "data/error.log" (str ticker (ex-data e) "\n") :append true)
+                             (when (= status 429)
+                               (reset! error status)))))
+      (when-not @error
+        (recur tickers)))))
+
 
 (defn json-fetch-macro! []
   (doseq [identifier ["$GDP" "$FEDFUNDS" "$PAYEMS" "$UNRATE"]]
-    (let [filename (str "data/macro/" identifier ".json")]
+    (let [filename (str "data/macro/" identifier ".edn")]
       (spit filename (fetch-historical identifier "level")))))
 
 
